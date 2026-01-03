@@ -17,7 +17,7 @@ const limiter = expressrateLimit({
 });
 
 const cashfree = new Cashfree(
-    CFEnvironment.PRODUCTION,
+    CFEnvironment.SANDBOX,
     process.env.APP_ID,
     process.env.APP_SECRET
 );
