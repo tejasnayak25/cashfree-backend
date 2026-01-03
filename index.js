@@ -1,9 +1,20 @@
 const express = require('express');
 const app = express();
+app.set('trust proxy', 1);
 const port = 3000;
 const { Cashfree, CFEnvironment } = require('cashfree-pg');
 const dotenv = require('dotenv');
 dotenv.config();
+
+const expressrateLimit = require('express-rate-limit');
+
+const limiter = expressrateLimit({
+    windowMs: 15 * 60 * 1000, // 15 minutes
+    max: 100, // limit each IP to 100 requests per windowMs
+    standardHeaders: true, // Return rate limit info in the `RateLimit-*` headers
+    legacyHeaders: false, // Disable the deprecated `X-RateLimit-*` headers
+    message: 'Too many requests, please try again later.'
+});
 
 const cashfree = new Cashfree(
     CFEnvironment.PRODUCTION,
@@ -32,6 +43,7 @@ function createOrder() {
     return cashfree.PGCreateOrder(request);
 }
 
+app.use(limiter);
 app.use(express.json());
 
 app.get('/create-order', async (req, res) => {
